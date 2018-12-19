@@ -135,3 +135,29 @@ ansible-playbook helloworld.yml --private-key ~/.ssh/EffectiveDevOpsAWS.pem -e t
 ```
 ansible-playbook helloworld.yml --private-key ~/.ssh/EffectiveDevOpsAWS.pem -e target=54.180.99.86 --check
 ```
+* 플레이북 실행 (3)
+```
+ansible-playbook helloworld.yml --private-key ~/.ssh/EffectiveDevOpsAWS.pem -e target=54.180.99.86
+```
+* 플레이북 실행 (4) / 변경 사항에 대한 카나리아 테스트 (helloworld/files/helloworld.js 수정 Hello World -> Hello New World)
+```
+ansible-playbook helloworld.yml --private-key ~/.ssh/EffectiveDevOpsAWS.pem -e target=54.180.99.86 --check
+```
+* 플레이북 실행 (5) / 변경된 웹페이지 내용 확인.
+```
+ansible-playbook helloworld.yml --private-key ~/.ssh/EffectiveDevOpsAWS.pem -e target=54.180.99.86
+```
+* EC2 인스턴스에서 github 을 이용한 자체적인 ansible 실행하도록 설정 (외부에서 ssh 접속이 없는 자체적으로 진행되는 내용)
+```
+ansible '54.180.99.86' --private-key ~/.ssh/EffectiveDevOpsAWS.pem --become -m yum -a 'name=git enablerepo=epel state=installed'
+ansible '54.180.99.86' --private-key ~/.ssh/EffectiveDevOpsAWS.pem --become -m pip -a 'name=ansible state=present'
+```
+* github 참조되는 링크의 ansible 위치로 localhost 파일 생성 (정적인 이벤토리를 생성하고 앤서블에 실행하게 하기위함)
+```
+[localhost]
+localhost ansible_connection=local
+```
+* EC2 인스컨스에 cronjob 추가하기 (cron 모듈 사용 및 ansible-pull 제공한 매개변수는 소스 브랜치에 대한 깃허브 URL)
+```
+ansible '54.180.99.86' --private-key ~/.ssh/EffectiveDevOpsAWS.pem -m cron -a 'name=ansible-pull minute="*/10" job="/usr/local/bin/ansible-pull -U https://github.com/Moon-Tae-Kwon/ansible helloworld.yml -i localhost --sleep 60"'
+```
