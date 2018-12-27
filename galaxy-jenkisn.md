@@ -59,3 +59,5 @@ git push
 git checkout master
 git pull
 ```
+
+위위 내용을 참조한 템플릿화 -> cloudformation 참조
